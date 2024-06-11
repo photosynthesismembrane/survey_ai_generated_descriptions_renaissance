@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Survey</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<style>
+    body {
+        font-family: Helvetica, Arial, sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+    }
+    .tab {
+        display: none; /* Hide tabs initially */
+    }
+    .visible {
+        display: block; /* Only the active tab is visible */
+    }
+    #tabContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* This centers the child elements horizontally */
+        width: 100%; /* Ensures the container takes full width */
+    }
+    .text-field-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 50vw;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .form-group {
+        display: flex;
+        align-items: center; /* Ensures labels are aligned with the text fields */
+        justify-content: space-between;
+        margin-bottom: 15px;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .form-group label {
+        width: 30%;
+        text-align: right;
+        margin-right: 10px;
+        font-size: 16px;
+    }
+
+    .form-group input {
+        width: 65%;
+        padding: 8px;
+        font-size: 16px;
+    }
+
+    .item {
+        display: flex; /* This will align the image and text side by side */
+        align-items: center; /* This will vertically align items in the middle */
+        justify-content: center; /* Aligns items to the start of the 'item' container */
+        margin-bottom: 20px;
+        max-width: 100%;
+        padding: 40px;
+    }
+    img {
+        width: auto; /* Auto width for responsive size */
+        max-height: 80vh;
+        max-width: 25vw;
+        border: 1px solid #ccc;
+    }
+    .text-content {
+        display: flex; /* This will align the image and text side by side */
+        align-items: center; /* This will vertically align items in the middle */
+        justify-content: center; /* Aligns items to the start of the 'item' container */
+        padding: 40px;
+        margin: 20px; /* Space between image and text */
+        width: 30vw;
+        height: 60vh;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+    input[type="radio"], textarea, button {
+        margin-right: 5px;
+        margin-top: 20px;
+    }
+    label {
+        margin-right: 10px;
+        font-size: 16px;
+    }
+    .text-field-container {
+        text-align: left;
+    }
+    textarea {
+        width: 80%; /* Adequate width for writing a paragraph */
+        height: 100px; /* Enough height to write multiple lines */
+        margin: 20px auto; /* Center align the textarea */
+        display: block; /* Ensures that textarea takes its own line */
+    }
+    .controls {
+        text-align: center; /* Center-aligns buttons */
+        padding: 10px;
+    }
+    button {
+        font-size: 16px;
+        padding: 10px;
+        margin: 10px; /* Space between buttons */
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+    /* Submit button is bigger and red */
+    button.button-red {
+        background-color: #f44336;
+        padding: 15px;
+        font-size: 20px;
+    }
+    /* Hover on submit it get's darker */
+    button.button-red:hover {
+        background-color: #d32f2f;
+    }
+    .selected {
+        background-color: #e7f4e4; /* Subtle light green background for selected text blocks */
+    }
+    .header-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .highlighted {
+        background-color: #ffb7b7;
+        cursor: pointer;
+    }
+    /* Modal styles */
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgb(0,0,0); 
+        background-color: rgba(0,0,0,0.4); 
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; 
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; 
+        max-width: 600px;
+        text-align: center;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+</style>
+<script src="renaissance_data.js"></script>
+</head>
+<body>
+    <form action="https://formspree.io/f/xyyrojnd" method="POST">
+        <div id="tabContainer"></div>
+    </form>
+    <script>
+        function shuffleTupleArray(array) {
+            const shuffledArray = array.slice();
+            for (let i = shuffledArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+            }
+            return shuffledArray;
+        }
+
+        const tuples = [
+            ["llava", "cogvlm"],
+            ["llava", "deepseek"],
+            ["cogvlm", "deepseek"]
+        ];
+
+        function shuffleModelsArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const models = [
+            "llava",
+            "deepseek",
+            "cogvlm",
+        ];
+
+        const tabTitles = ["Personal Information", "Composition", "Contrast", "Foreground & Background", "Symmetry & Asymmetry", "Eye Movement", "Focus Point", "Composition", "Contrast", "Foreground & Background", "Symmetry & Asymmetry", "Eye Movement", "Focus Point"];
+        const tabSubtitles = ["Fill in your personal information", "Judge which description fits best", "Highlight non fitting parts in the text"];
+        const tabQuestions = {
+                0: "Please fill in your personal information and read the survey description.",
+                1: "Judge which <strong>text</strong> you find describes the <strong>composition</strong> of the painting the best. Click to select the most fitting description.",
+                2: "Judge which <strong>text</strong> you find that bests describes the use of <strong>contrast</strong> in the painting. Click to select the most fitting description.",
+                3: "Judge which <strong>text</strong> you find that bests describes the relationship between <strong>foreground and background</strong> in the painting. Click to select the most fitting description.",
+                4: "Judge which <strong>text</strong> you find that bests describes <strong>symmetry and asymmetry</strong> in the painting. Click to select the most fitting description.",
+                5: "Judge which <strong>text</strong> you find that bests describes how the viewers <strong>eye movement</strong> is guided through the painting. Click to select the most fitting description.",
+                6: "Judge which <strong>text</strong> you find that bests describes the <strong>focus point</strong> of the painting. Click to select the most fitting description.",
+                7: "Judge the quality of the <strong>text</strong> on <strong>composition</strong> of these paintings. Do this by highlighting parts of the texts that you think are not fitting or could be improved.",
+                8: "Judge the quality of the <strong>text</strong> about how <strong>contrast</strong> is used of these paintings. Do this by highlighting parts of the texts that you think are not fitting or could be improved.",
+                9: "Judge the quality of the <strong>text</strong> on <strong>foreground and background</strong> of these paintings. Do this by highlighting parts of the texts that you think are not fitting or could be improved.",
+                10: "Judge the quality of the <strong>text</strong> on <strong>symmetry and asymmetry</strong> of these paintings. Do this by highlighting parts of the texts that you think are not fitting or could be improved.",
+                11: "Judge the quality of the <strong>text</strong> on the viewers <strong>eye movement</strong> for the paintings. Do this by highlighting parts of the texts that you think are not fitting or could be improved.",
+                12: "Judge the quality of the <strong>text</strong> on the <strong>focus point</strong> of the paintings. Do this by highlighting parts of the texts that you think are not fitting or could be improved.",
+            };
+        const tabData = {
+            0: "personal_info",
+            1: "composition",
+            2: "contrast_elements",
+            3: "foreground_background_4",
+            4: "symmetry_asymmetry_1",
+            5: "eye_movement_2",
+            6: "focus_point",
+            7: "composition",
+            8: "contrast_elements",
+            9: "foreground_background_4",
+            10: "symmetry_asymmetry_1",
+            11: "eye_movement_2",
+            12: "focus_point",
+        };
+
+        function truncateText(text, maxChars) {
+            if (text.length <= maxChars) {
+                return text;
+            }
+            let truncated = text.substring(0, maxChars);
+            const lastSentenceEnd = Math.max(truncated.lastIndexOf('.'), truncated.lastIndexOf('!'), truncated.lastIndexOf('?'));
+            if (lastSentenceEnd > -1) {
+                truncated = truncated.substring(0, lastSentenceEnd + 1);
+            } else {
+                truncated = truncated.substring(0, truncated.lastIndexOf(' '));
+            }
+            return truncated.trim();
+        }
+
+        function createIntroTab() {
+            return `
+                <div class="tab" id="tab0">
+                    <div class="header-container">
+                        <h2>Welcome to the Survey</h2>
+                        <p>Please fill in your personal information and read the survey description below:</p>
+                    </div>
+                    <div class="text-field-container">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="study">What are you studying?</label>
+                            <input type="text" id="study" name="study" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">What year are you in?</label>
+                            <input type="text" id="year" name="year" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bank_account">Bank Account:</label>
+                            <input type="text" id="bank_account" name="bank_account" required>
+                        </div>
+                    </div>
+                    <div class="text-field-container">
+                        <h3>Survey Description</h3>
+                        <p>Thank you for participating in this survey. We will send you 10 euro's when you carefully give us your opinion on the subjects.</p>
+                        <p>We used several ai vision language models to describe the composition of paintings. We use data like this later to train an ai art generator. We are interested in your opinion on the quality of the text descriptions.</p>
+                        <p>The first half you are asked to select which of the two descriptions fits best. The second half you are asked to highlight parts of the text that you think are not fitting or could be improved. Each tab shows descriptions on a specific topic.</p>
+                    </div>
+                    <div class="controls">
+                        <button type="button" class="button-red" onclick="changeTab(0, 1)">Start</button>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        function createOutroTab(tabIndex) {
+            return `
+                <div class="tab" id="tab${tabIndex}">
+                    <div class="header-container">
+                        <h2>We appreciate your insights. Thank you for sharing your thoughts with us.</h2>
+                        <p>You will receive 10 euro's within 2 weeks after you pressed submit.</p>
+                    </div>
+                    <div class="controls">
+                        <button type="button" onclick="changeTab(${tabIndex}, -1)">Previous</button>
+                        <button type="submit" class="button-red">Submit</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createTabContent(tabIndex, items, two_options) {
+            let tabContent = `<div class="tab" id="tab${tabIndex}">`;
+            tabContent += `<div class="header-container"><h2>${tabTitles[tabIndex]}</h2><h3>${tabSubtitles[two_options ? 1 : 2]}</h3><p>${tabQuestions[tabIndex]}</p></div>`;
+            if (two_options) {
+                const shuffledTuples = shuffleTupleArray(tuples);
+                items.forEach((item, index) => {
+                    const [firstComposition, secondComposition] = shuffledTuples[index % shuffledTuples.length];
+                    const text_one = truncateText(renaissance_data[item][`${firstComposition}_answers`][tabData[tabIndex]], 1000);
+                    const text_two = truncateText(renaissance_data[item][`${secondComposition}_answers`][tabData[tabIndex]], 1000);
+                    tabContent += `
+                        <div class="item">
+                            <input type="hidden" name="${tabData[tabIndex]}_${item}" value="">
+                            <div class="text-content two-option-text-content" data-index="${firstComposition}" onclick="toggleSelection(event)">
+                                <span>${text_one}</span><br>
+                            </div>
+                            <img src="renaissance/${item}" alt="${item}">
+                            <div class="text-content two-option-text-content" data-index="${secondComposition}" onclick="toggleSelection(event)">
+                                <span>${text_two}</span><br>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                const shuffledModels = shuffleModelsArray(models);
+                items.forEach((item, index) => {
+                    const model = shuffledModels[index];
+                    const text = truncateText(renaissance_data[item][`${model}_answers`][tabData[tabIndex]], 1000);
+                    tabContent += `
+                        <div class="item">
+                            <img src="renaissance/${item}" alt="${item}">
+                            <div class="text-content highlight-text-content" id="${tabData[tabIndex]}_${item}">
+                                <span>${text}</span>
+                            </div>
+                            <input type="hidden" class="input-highlights" id="highlights_${tabData[tabIndex]}_${item}" name="highlights_${tabData[tabIndex]}_${item}">
+                        </div>
+                    `;
+                });
+            }
+            tabContent += `
+                <div class="controls">
+                    <button type="button" onclick="changeTab(${tabIndex}, -1)">Previous</button>
+                    <button type="button" onclick="changeTab(${tabIndex}, 1)">Next</button>
+                </div>                
+            `;
+            tabContent += `</div>`;
+            return tabContent;
+        }
+
+        function toggleSelection(event) {
+            const textContent = event.currentTarget;
+            const allTextContents = textContent.parentNode.querySelectorAll('.two-option-text-content');
+            const allInvisibleInputs = textContent.parentNode.querySelectorAll('input[type="hidden"]');
+            allTextContents.forEach(block => {
+                if (block !== textContent) {
+                    block.classList.remove('selected');
+                }
+            });
+            allInvisibleInputs.forEach(input => {
+                input.value = "";
+            });
+            textContent.classList.add('selected');
+            const input = textContent.parentNode.querySelector('input[type="hidden"]');
+            input.value = textContent.getAttribute('data-index');
+            let parentItem = textContent.closest('.item');
+            let nextItem = parentItem.nextElementSibling;
+            if (nextItem && nextItem.classList.contains('item')) {
+                scrollToItem(nextItem);
+            } else {
+                scrollToBottom();
+            }
+        }
+
+        function addHighlightListeners() {
+            const highlightedElements = document.querySelectorAll('.highlight-text-content');
+            highlightedElements.forEach(function(element) {
+                element.highlights = [];
+                element.addEventListener('mouseup', function(e) {
+                    const selection = window.getSelection();
+                    if (!selection.isCollapsed && selection.toString().trim() !== '') {
+                        const range = selection.getRangeAt(0);
+                        const selectionContents = range.extractContents();
+                        const span = document.createElement('span');
+                        span.classList.add('highlighted');
+                        span.appendChild(selectionContents);
+                        range.insertNode(span);
+                        span.onclick = function() {
+                            const index = element.highlights.indexOf(span.textContent);
+                            if (index > -1) {
+                                element.highlights.splice(index, 1);
+                            }
+                            const textNode = document.createTextNode(span.textContent);
+                            span.parentNode.replaceChild(textNode, span);
+                            document.getElementById(`highlights_${element.id}`).value = element.highlights.join(' | ');
+                        };
+                        element.highlights.push(span.textContent);
+                        document.getElementById(`highlights_${element.id}`).value = element.highlights.join(' | ');
+                    }
+                    selection.removeAllRanges();
+                });
+            });
+        }
+
+        function attachScrollToNextItem() {
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(button => {
+                button.addEventListener('change', function() {
+                    let parentItem = this.closest('.item');
+                    let nextItem = parentItem.nextElementSibling;
+                    if (nextItem && nextItem.classList.contains('item')) {
+                        scrollToItem(nextItem);
+                    } else {
+                        scrollToBottom();
+                    }
+                });
+            });
+        }
+
+        function scrollToItem(item) {
+            const yOffset = -window.innerHeight / 2 + item.clientHeight / 2;
+            const yPosition = item.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: yPosition, behavior: 'smooth' });
+        }
+
+        function scrollToBottom() {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function changeTab(current, move) {
+            // Validation logic for the first tab
+            if (current === 0 && move === 1) {
+                const requiredFields = document.querySelectorAll('#tab0 input[required]');
+                for (let field of requiredFields) {
+                    if (!field.value) {
+                        showModal('Please fill in all required fields.');
+                        return; // Prevent tab change if any required field is empty
+                    }
+                }
+            }
+
+            // Change tab visibility
+            document.getElementById("tab" + current).classList.remove("visible");
+            document.getElementById("tab" + (current + move)).classList.add("visible");
+            window.scrollTo(0, 0);
+        }
+
+        function showModal(message) {
+            const modal = document.getElementById("myModal");
+            const modalMessage = document.getElementById("modalMessage");
+            const span = document.getElementsByClassName("close")[0];
+
+            modalMessage.innerText = message;
+            modal.style.display = "block";
+
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+
+        window.onload = function() {
+            displayTabs();
+            const modal = document.getElementById("myModal");
+            const span = document.getElementsByClassName("close")[0];
+
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                // Generate a random index from 0 to i
+                const j = Math.floor(Math.random() * (i + 1));
+                // Swap elements at indices i and j
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function displayTabs() {
+            const container = document.getElementById("tabContainer");
+            container.innerHTML = createIntroTab();
+            const imageKeys = Object.keys(renaissance_data);
+            shuffleArray(imageKeys);
+            for (let i = 1; i < 7; i++) {
+                container.innerHTML += createTabContent(i, imageKeys.slice((i - 1) * 3, i * 3), true);
+            }
+            for (let i = 7; i < 13; i++) {
+                container.innerHTML += createTabContent(i, imageKeys.slice((i - 7) * 3, (i - 6) * 3), false);
+            }
+            container.innerHTML += createOutroTab(13);
+            changeTab(0, 0);
+            attachScrollToNextItem();
+            addHighlightListeners();
+        }
+
+        window.onload = displayTabs;
+    </script>
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modalMessage"></p>
+        </div>
+    </div>
+</body>
+</html>
