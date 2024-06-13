@@ -471,16 +471,35 @@
             }
         }
 
-        function changeTab(current, move) {
-            // Validation logic for the first tab
-            if (current === 0 && move === 1) {
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        function validateTabFields(tabIndex) {
+            if (tabIndex === 0) { // Assuming the first tab has personal info fields
                 const requiredFields = document.querySelectorAll('#tab0 input[required]');
                 for (let field of requiredFields) {
                     if (!field.value) {
                         showModal('Please fill in all required fields.');
-                        return; // Prevent tab change if any required field is empty
+                        field.focus();
+                        return false;
                     }
                 }
+                const emailField = document.getElementById('email');
+                if (emailField && !validateEmail(emailField.value)) {
+                    showModal('Please enter a valid email address.');
+                    emailField.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function changeTab(current, move) {
+            // Validate current tab fields before moving
+            if (move === 1 && !validateTabFields(current)) {
+                return; // Prevent tab change if validation fails
             }
 
             // Record time spent on the current tab
