@@ -183,6 +183,9 @@
         <div id="tabContainer"></div>
     </form>
     <script>
+        image_data = renaissance_data;
+        image_folder = "renaissance";
+
         function shuffleTupleArray(array) {
             const shuffledArray = array.slice();
             for (let i = shuffledArray.length - 1; i > 0; i--) {
@@ -324,15 +327,15 @@
                 const shuffledTuples = shuffleTupleArray(tuples);
                 items.forEach((item, index) => {
                     const [firstComposition, secondComposition] = shuffledTuples[index % shuffledTuples.length];
-                    const text_one = truncateText(renaissance_data[item][`${firstComposition}_answers`][tabData[tabIndex]], 1000);
-                    const text_two = truncateText(renaissance_data[item][`${secondComposition}_answers`][tabData[tabIndex]], 1000);
+                    const text_one = truncateText(image_data[item][`${firstComposition}_answers`][tabData[tabIndex]], 1000);
+                    const text_two = truncateText(image_data[item][`${secondComposition}_answers`][tabData[tabIndex]], 1000);
                     tabContent += `
                         <div class="item">
                             <input type="hidden" name="${tabData[tabIndex]}_${item}" value="">
                             <div class="text-content two-option-text-content" data-index="${firstComposition}" onclick="toggleSelection(event)">
                                 <span>${text_one}</span><br>
                             </div>
-                            <img src="renaissance/${item}" alt="${item}">
+                            <img src="${image_folder}/${item}" alt="${item}">
                             <div class="text-content two-option-text-content" data-index="${secondComposition}" onclick="toggleSelection(event)">
                                 <span>${text_two}</span><br>
                             </div>
@@ -343,10 +346,10 @@
                 const shuffledModels = shuffleModelsArray(models);
                 items.forEach((item, index) => {
                     const model = shuffledModels[index];
-                    const text = truncateText(renaissance_data[item][`${model}_answers`][tabData[tabIndex]], 1000);
+                    const text = truncateText(image_data[item][`${model}_answers`][tabData[tabIndex]], 1000);
                     tabContent += `
                         <div class="item">
-                            <img src="renaissance/${item}" alt="${item}">
+                            <img src="${image_folder}/${item}" alt="${item}">
                             <div class="text-content highlight-text-content" id="${tabData[tabIndex]}_${item}">
                                 <span>${text}</span>
                             </div>
@@ -572,7 +575,7 @@
         function displayTabs() {
             const container = document.getElementById("tabContainer");
             container.innerHTML = createIntroTab();
-            const imageKeys = Object.keys(renaissance_data);
+            const imageKeys = Object.keys(image_data);
             shuffleArray(imageKeys);
             for (let i = 1; i < 7; i++) {
                 container.innerHTML += createTabContent(i, imageKeys.slice((i - 1) * 3, i * 3), true);
