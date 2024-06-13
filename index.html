@@ -459,16 +459,25 @@
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
 
-        let tabEnterTime;
-        let tabTimeData = {};
+        function addTimeSpentFields(numTabs) {
+            const form = document.querySelector('form');
+            for (let i = 0; i <= numTabs; i++) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.id = `time_spent_tab${i}`;
+                input.name = `time_spent_tab${i}`;
+                form.appendChild(input);
+            }
+        }
+
+        let tabEnterTime = new Date().getTime();
+        let tabTimeData = Array(14).fill().map(() => []); // Initialize for 14 tabs (0 to 13)
 
         function recordTimeSpent(tabIndex) {
             const now = new Date().getTime();
-            if (tabEnterTime && tabIndex in tabTimeData) {
+            if (tabEnterTime) {
                 const timeSpent = now - tabEnterTime;
                 tabTimeData[tabIndex].push(timeSpent);
-            } else {
-                tabTimeData[tabIndex] = [];
             }
             tabEnterTime = now;
         }
