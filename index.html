@@ -365,6 +365,7 @@
                     <button type="button" onclick="changeTab(${tabIndex}, 1)">Next</button>
                 </div>                
             `;
+            tabContent += `<input type="hidden" id="time_spent_tab${tabIndex}" name="time_spent_tab${tabIndex}" value="">`;
             tabContent += `</div>`;
             return tabContent;
         }
@@ -457,17 +458,6 @@
 
         function scrollToBottom() {
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }
-
-        function addTimeSpentFields(numTabs) {
-            const form = document.querySelector('form');
-            for (let i = 0; i <= numTabs; i++) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.id = `time_spent_tab${i}`;
-                input.name = `time_spent_tab${i}`;
-                form.appendChild(input);
-            }
         }
 
         let tabEnterTime = new Date().getTime();
