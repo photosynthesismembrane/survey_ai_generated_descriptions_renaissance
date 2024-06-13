@@ -368,7 +368,7 @@
             tabContent += `</div>`;
             return tabContent;
         }
-
+        
         function toggleSelection(event) {
             const textContent = event.currentTarget;
             const allTextContents = textContent.parentNode.querySelectorAll('.two-option-text-content');
@@ -505,6 +505,9 @@
             // Record time spent on the current tab
             recordTimeSpent(current);
 
+            // Store time data before moving to the next tab
+            storeTimeData();
+
             // Change tab visibility
             document.getElementById("tab" + current).classList.remove("visible");
             document.getElementById("tab" + (current + move)).classList.add("visible");
@@ -544,6 +547,8 @@
                     modal.style.display = "none";
                 }
             }
+
+            tabEnterTime = new Date().getTime();  // Initialize the first tab entry time
         }
 
         
@@ -572,14 +577,6 @@
             attachScrollToNextItem();
             addHighlightListeners();
         }
-        
-        // Store time data before submitting the form
-        document.querySelector('form').addEventListener('submit', storeTimeData);
-
-        window.onload = function() {
-            displayTabs();
-            tabEnterTime = new Date().getTime();  // Initialize the first tab entry time
-        };
     </script>
     <!-- Modal -->
     <div id="myModal" class="modal">
