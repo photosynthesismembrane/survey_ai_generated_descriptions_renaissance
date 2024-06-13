@@ -448,6 +448,29 @@
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
 
+        let tabEnterTime;
+        let tabTimeData = {};
+
+        function recordTimeSpent(tabIndex) {
+            const now = new Date().getTime();
+            if (tabEnterTime && tabIndex in tabTimeData) {
+                const timeSpent = now - tabEnterTime;
+                tabTimeData[tabIndex].push(timeSpent);
+            } else {
+                tabTimeData[tabIndex] = [];
+            }
+            tabEnterTime = now;
+        }
+
+        function storeTimeData() {
+            for (let i = 0; i <= 13; i++) {
+                const timeField = document.getElementById(`time_spent_tab${i}`);
+                if (timeField) {
+                    timeField.value = tabTimeData[i] ? tabTimeData[i].join(',') : '';
+                }
+            }
+        }
+
         function changeTab(current, move) {
             // Validation logic for the first tab
             if (current === 0 && move === 1) {
@@ -459,6 +482,9 @@
                     }
                 }
             }
+
+            // Record time spent on the current tab
+            recordTimeSpent(current);
 
             // Change tab visibility
             document.getElementById("tab" + current).classList.remove("visible");
@@ -527,8 +553,14 @@
             attachScrollToNextItem();
             addHighlightListeners();
         }
+        
+        // Store time data before submitting the form
+        document.querySelector('form').addEventListener('submit', storeTimeData);
 
-        window.onload = displayTabs;
+        window.onload = function() {
+            displayTabs();
+            tabEnterTime = new Date().getTime();  // Initialize the first tab entry time
+        };
     </script>
     <!-- Modal -->
     <div id="myModal" class="modal">
