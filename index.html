@@ -368,6 +368,17 @@
             tabContent += `</div>`;
             return tabContent;
         }
+
+        function addTimeSpentFields(numTabs) {
+            const form = document.querySelector('form');
+            for (let i = 0; i <= numTabs; i++) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.id = `time_spent_tab${i}`;
+                input.name = `time_spent_tab${i}`;
+                form.appendChild(input);
+            }
+        }
         
         function toggleSelection(event) {
             const textContent = event.currentTarget;
@@ -549,6 +560,8 @@
             }
 
             tabEnterTime = new Date().getTime();  // Initialize the first tab entry time
+
+            addTimeSpentFields(13); // Dynamically add hidden fields for 14 tabs (0 to 13)
         }
 
         
