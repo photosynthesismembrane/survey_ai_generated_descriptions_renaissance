@@ -179,6 +179,9 @@
 <script src="renaissance_data.js"></script>
 </head>
 <body>
+    <div id="mobileMessage" style="display:none;">
+        <p>The survey is made to run on a desktop or laptop. The interface does not work on a mobile phone. Please find the opportunity to open the link on a desktop or laptop.</p>
+    </div>
     <form action="https://formcarry.com/s/TdcsLuZb9Vh" method="POST">
         <div id="tabContainer"></div>
     </form>
@@ -542,24 +545,32 @@
             }
         }
 
+        function isMobile() {
+            return window.innerWidth <= 767;
+        }
+
         window.onload = function() {
-            displayTabs();
-            const modal = document.getElementById("myModal");
-            const span = document.getElementsByClassName("close")[0];
+            if (!isMobile()) {
+                displayTabs();
+                const modal = document.getElementById("myModal");
+                const span = document.getElementsByClassName("close")[0];
 
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-
-            window.onclick = function(event) {
-                if (event.target == modal) {
+                span.onclick = function() {
                     modal.style.display = "none";
                 }
+
+                window.onclick = function(event) {
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
+
+                tabEnterTime = new Date().getTime();  // Initialize the first tab entry time
+
+                addTimeSpentFields(13); // Dynamically add hidden fields for 14 tabs (0 to 13)
+            } else {
+                document.getElementById('mobileMessage').style.display = 'block';
             }
-
-            tabEnterTime = new Date().getTime();  // Initialize the first tab entry time
-
-            addTimeSpentFields(13); // Dynamically add hidden fields for 14 tabs (0 to 13)
         }
 
         
